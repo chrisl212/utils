@@ -147,6 +147,7 @@ static json_t _parse_object(FILE *fp) {
     
     if (fgetc(fp) != '{') 
         fseek(fp, -1, SEEK_CUR);
+    _ignore_whitespace(fp);
     while ((c = fgetc(fp)) != '}') {
         fseek(fp, -1, SEEK_CUR);
         if (c == ',') 
@@ -174,28 +175,28 @@ static json_t _json_zero() {
 
 static json_t _parse_array(FILE *fp) {
     char c;
-    json_t array, *children;
-    uint64_t child_len = 1;
+    json_t array, *children = NULL;
+    uint64_t child_len = 0;
 
     array.type = JSON_ARR;
     _ignore_whitespace(fp);
     
     if (fgetc(fp) != '[') 
         fseek(fp, -1, SEEK_CUR);
-    children = calloc(child_len, sizeof(*children));
+    _ignore_whitespace(fp);
     while ((c = fgetc(fp)) != ']') {
         fseek(fp, -1, SEEK_CUR);
         if (c == ',') 
             fseek(fp, 1, SEEK_CUR);
         children = realloc(children, ++child_len * sizeof(*children));
         
-        children[child_len-2] = _parse_item(fp);
-        children[child_len-1] = _json_zero();
+        children[child_len-1] = _parse_item(fp);
 
         _ignore_whitespace(fp);
     }
                 
-    array.value.aval = children;
+    array.value.aval.children = children;
+    array.value.aval.len = child_len;
     return array;
 }
 
@@ -236,13 +237,13 @@ json_t json_loadFromFile(FILE *fp) {
 }
 
 json_t json_objectForKey(json_t dict, const char *key) {
-    jsonChild_t children = dict.value.oval;
+    jsonObject_t obj = dict.value.oval;
     json_t res = _json_null();
 
     uint64_t idx = 0;
-    for (idx = 0; children.keys[idx] != NULL; idx++) {
-        if (strcmp(children.keys[idx], key) == 0) {
-            res = children.children[idx];
+    for (idx = 0; obj.keys[idx] != NULL; idx++) {
+        if (strcmp(obj.keys[idx], key) == 0) {
+            res = obj.children[idx];
             break;
         }
     }
@@ -250,7 +251,9 @@ json_t json_objectForKey(json_t dict, const char *key) {
 }
 
 json_t json_objectAtIndex(json_t arr, uint32_t idx) {
-    return arr.value.aval[idx];
+    if (idx >= arr.value.aval.len) 
+        return _json_zero();
+    return arr.value.aval.children[idx];
 }
 
 static void _write_indents(FILE *fp, uint16_t indents) {
@@ -277,10 +280,10 @@ static void _write(json_t json, FILE *fp, uint16_t indents) {
         fprintf(fp, "}");
     } else if (json.type == JSON_ARR) {
         fprintf(fp, "[\n");
-        for (i = 0; json.value.aval[i].type != 0 || json.value.aval[i].value.sval != NULL; i++) {
+        for (i = 0; i < json.value.aval.len; i++) {
             _write_indents(fp, indents);
-            _write(json.value.aval[i], fp, indents+1);
-            if (json.value.aval[i+1].type != 0 || json.value.aval[i+1].value.sval != NULL)
+            _write(json.value.aval.children[i], fp, indents+1);
+            if (i != json.value.aval.len-1)
                 fprintf(fp, ",");
             fprintf(fp, "\n");
         }
@@ -345,10 +348,10 @@ void json_free(json_t json) {
     if (json.type == JSON_STR && json.value.sval) {
         free(json.value.sval);
     } else if (json.type == JSON_ARR) {
-        for (i = 0; json.value.aval[i].type != 0 || json.value.aval[i].value.sval != NULL; i++) {
-            json_free(json.value.aval[i]);
+        for (i = 0; i < json.value.aval.len; i++) {
+            json_free(json.value.aval.children[i]);
         }
-        free(json.value.aval);
+        free(json.value.aval.children);
     } else if (json.type == JSON_OBJ) {
         for (i = 0; json.value.oval.keys[i] != NULL; i++) {
             json_free(json.value.oval.children[i]);

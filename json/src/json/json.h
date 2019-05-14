@@ -21,7 +21,12 @@ typedef struct json_t json_t;
 typedef struct {
     json_t *children;
     char **keys;
-} jsonChild_t;
+} jsonObject_t;
+
+typedef struct {
+    json_t *children;
+    uint64_t len;
+} jsonArray_t;
 
 typedef union {
     char *sval;
@@ -30,8 +35,8 @@ typedef union {
     double fval;
     bool bval;
     bool null;
-    json_t *aval;
-    jsonChild_t oval;
+    jsonArray_t aval;
+    jsonObject_t oval;
 } jsonValue_t;
 
 struct json_t {
