@@ -32,6 +32,25 @@ static char *_parse_string(FILE *fp) {
             tmp = realloc(tmp, ++tmp_len * sizeof(*tmp));
             if (c == '\\') {
                 c = fgetc(fp);
+                switch (c) {
+                    case 'n':
+                        c = '\n';
+                        break;
+                    case 'b':
+                        c = '\b';
+                        break;
+                    case 'f':
+                        c = '\f';
+                        break;
+                    case 'r':
+                        c = '\r';
+                        break;
+                    case 't':
+                        c = '\t';
+                        break;
+                    default:
+                        break;
+                }
             }
             tmp[tmp_len-2] = c;
             tmp[tmp_len-1] = '\0';
@@ -99,6 +118,7 @@ static json_t _parse_item(FILE *fp) {
         item.value.sval = _parse_string(fp);
     } else if (c == '-' || c == '+' || isdigit(c)) {
         item = _parse_number(fp);
+        fseek(fp, -1, SEEK_CUR);
     } else if (c == '{') {
         item = _parse_object(fp);
     } else if (c == '[') {
@@ -107,6 +127,8 @@ static json_t _parse_item(FILE *fp) {
         item = _parse_bool(fp);
     } else if (c == 'n') {
         item.type = JSON_NULL;
+        while (isalpha(fgetc(fp)));
+        fseek(fp, -1, SEEK_CUR);
     }
     return item;
 }
@@ -123,6 +145,8 @@ static json_t _parse_object(FILE *fp) {
     keys = calloc(key_len, sizeof(*keys));
     children = NULL;
     
+    if (fgetc(fp) != '{') 
+        fseek(fp, -1, SEEK_CUR);
     while ((c = fgetc(fp)) != '}') {
         fseek(fp, -1, SEEK_CUR);
         if (c == ',') 
@@ -237,6 +261,7 @@ static void _write_indents(FILE *fp, uint16_t indents) {
 
 static void _write(json_t json, FILE *fp, uint16_t indents) {
     uint64_t i;
+    char c;
 
     if (json.type == JSON_OBJ) {
         fprintf(fp, "{\n");
@@ -264,10 +289,33 @@ static void _write(json_t json, FILE *fp, uint16_t indents) {
     } else if (json.type == JSON_STR) {
         fputc('"', fp);
         for (i = 0; i < strlen(json.value.sval); i++) {
-            if (json.value.sval[i] == '"') {
-                fputc('\\', fp);
+            c = json.value.sval[i];
+            switch (c) {
+                case '"':
+                    fprintf(fp, "\\\"");
+                    break;    
+                case '\\':
+                    fprintf(fp, "\\\\");
+                    break;    
+                case '\b':
+                    fprintf(fp, "\\b");
+                    break;    
+                case '\f':
+                    fprintf(fp, "\\f");
+                    break;    
+                case '\n':
+                    fprintf(fp, "\\n");
+                    break;    
+                case '\r':
+                    fprintf(fp, "\\r");
+                    break;    
+                case '\t':
+                    fprintf(fp, "\\t");
+                    break;    
+                default:
+                    fputc(c, fp);
+                    break;
             }
-            fputc(json.value.sval[i], fp);
         }
         fputc('"', fp);
     } else if (json.type == JSON_INT) {
@@ -275,11 +323,14 @@ static void _write(json_t json, FILE *fp, uint16_t indents) {
     } else if (json.type == JSON_UINT) {
         fprintf(fp, "%lu", json.value.uival);
     } else if (json.type == JSON_FLOAT) {
-        fprintf(fp, "%lf", json.value.fval);
+        if (json.value.fval < 1e-6 || json.value.fval > 1e6)
+            fprintf(fp, "%le", json.value.fval);
+        else
+            fprintf(fp, "%lf", json.value.fval);
     } else if (json.type == JSON_BOOL) {
         fprintf(fp, "%s", (json.value.bval) ? "true" : "false");
     } else if (json.type == JSON_NULL) {
-        fprintf(fp, "NULL");
+        fprintf(fp, "null");
     }
 }
 
