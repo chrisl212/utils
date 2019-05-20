@@ -22,7 +22,7 @@ typedef struct {
     uint8_t a;
 } imgPixel_t;
 
-typedef struct {
+typedef struct img_t {
     imgType_t type;
     imgHeader_t header;
     imgPixel_t *bitmap;
@@ -30,7 +30,5 @@ typedef struct {
 
 img_t img_loadFromPath(const char *fpath);
 void img_free(img_t img);
-
-img_t png_loadFromPath(const char *fpath);
 
 #endif

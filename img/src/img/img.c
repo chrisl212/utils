@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "img.h"
+#include "../png/png.h"
 
 static void _strrev(char *s) {
     size_t len = strlen(s);
