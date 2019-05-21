@@ -14,16 +14,21 @@
 #include <stdbool.h>
 
 #include "../png/png.h"
+#include "../jpg/jpg.h"
+#include "../gif/gif.h"
 
 typedef enum {
     IMG_INVALID,
     IMG_PNG,
     IMG_JPG,
-    IMG_BMP
+    IMG_BMP,
+    IMG_GIF
 } imgType_t;
 
 typedef union {
     png_t png;
+    jpg_t jpg;
+    gif_t gif;
 } imgData_t;
 
 typedef struct img {

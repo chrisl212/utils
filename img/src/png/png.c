@@ -101,6 +101,7 @@ static png_t _loadPng(FILE *f) {
     
     fread(&header, sizeof(header), 1, f);
     if (_strcmp(header, magic, 8) != 0) {
+        fclose(f);
         return png;
     } else {
         png.valid = true;

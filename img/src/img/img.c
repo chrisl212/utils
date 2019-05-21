@@ -49,6 +49,16 @@ img_t img_loadFromPath(const char *fpath) {
         }
     } else if (strcmp(ext, "jpg") == 0) {
         img.type = IMG_JPG;
+        img.data.jpg = jpg_loadFromPath(fpath);
+        if (img.data.jpg.valid == false) {
+            img.type = IMG_INVALID;
+        }
+    } else if (strcmp(ext, "gif") == 0) {
+        img.type = IMG_GIF;
+        img.data.gif = gif_loadFromPath(fpath);
+        if (img.data.gif.valid == false) {
+            img.type = IMG_INVALID;
+        }
     }
 
     free(ext);
@@ -62,6 +72,9 @@ void img_getDimensions(img_t img, uint32_t *width, uint32_t *height) {
         IHDR = png_getChunk(img.data.png, "IHDR");
         *width = IHDR.data.IHDR.width;
         *height = IHDR.data.IHDR.height;
+    } else if (img.type == IMG_GIF) {
+        *width = img.data.gif.logicalScreenDescriptor.width;
+        *height = img.data.gif.logicalScreenDescriptor.height;
     }
 }
 
