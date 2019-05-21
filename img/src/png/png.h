@@ -12,14 +12,14 @@
 #include <stdbool.h>
 #include "pngChunk.h"
 
-typedef struct {
+typedef struct png {
     bool valid;
     pngChunk_t *chunks;
     uint32_t chunksLen;
 } png_t;
 
-typedef struct img img_t;
-
-img_t png_loadFromPath(const char *fpath);
+png_t png_loadFromPath(const char *fpath);
+pngChunk_t png_getChunk(png_t png, const char *chunk);
+void png_free(png_t png);
 
 #endif

@@ -13,25 +13,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "../png/png.h"
+
 typedef enum {
+    IMG_INVALID,
     IMG_PNG,
     IMG_JPG,
     IMG_BMP
 } imgType_t;
 
-typedef struct {
-    uint16_t r;
-    uint16_t g;
-    uint16_t b;
-    uint8_t a;
-} imgPixel_t;
+typedef union {
+    png_t png;
+} imgData_t;
 
 typedef struct img {
     imgType_t type;
-    imgPixel_t *bitmap;
+    imgData_t data;
 } img_t;
 
 img_t img_loadFromPath(const char *fpath);
+void img_getDimensions(img_t img, uint32_t *width, uint32_t *height);
 void img_free(img_t img);
 
 #endif

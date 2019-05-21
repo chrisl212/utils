@@ -11,6 +11,7 @@
 
 int main(int argc, char **argv) {
     img_t img;
+    uint32_t width, height;
     
     if (argc != 2) {
         printf("img [FILE]\n");
@@ -18,6 +19,9 @@ int main(int argc, char **argv) {
     }
 
     img = img_loadFromPath(argv[1]);
-
+    img_getDimensions(img, &width, &height);
+    printf("%dx%d\n", width, height);
+    
+    img_free(img);
     return 0;
 }

@@ -8,8 +8,8 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "img.h"
-#include "../png/png.h"
 
 static void _strrev(char *s) {
     size_t len = strlen(s);
@@ -30,7 +30,7 @@ static char *_getExt(const char *path) {
 
     while (i >= 0 && path[i] != '.') {
         ext = realloc(ext, sizeof(*ext) * ++sz);
-        ext[sz-2] = path[i--];
+        ext[sz-2] = tolower(path[i--]);
     }
     ext[sz-1] = '\0';
     _strrev(ext);
@@ -42,13 +42,36 @@ img_t img_loadFromPath(const char *fpath) {
     char *ext = _getExt(fpath);
 
     if (strcmp(ext, "png") == 0) {
-        img = png_loadFromPath(fpath);
+        img.type = IMG_PNG;
+        img.data.png = png_loadFromPath(fpath);
+        if (img.data.png.valid == false) {
+            img.type = IMG_INVALID;
+        }
+    } else if (strcmp(ext, "jpg") == 0) {
+        img.type = IMG_JPG;
     }
 
     free(ext);
     return img;
 }
 
+void img_getDimensions(img_t img, uint32_t *width, uint32_t *height) {
+    pngChunk_t IHDR;
+    
+    if (img.type == IMG_PNG) {
+        IHDR = png_getChunk(img.data.png, "IHDR");
+        *width = IHDR.data.IHDR.width;
+        *height = IHDR.data.IHDR.height;
+    }
+}
+
 void img_free(img_t img) {
-    free(img.bitmap);
+    switch (img.type) {
+        case IMG_PNG:
+            png_free(img.data.png);
+            break;
+            
+        default:
+            break;
+    }
 }

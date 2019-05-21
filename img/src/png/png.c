@@ -31,20 +31,11 @@ static int _strcmp(uint8_t *b1, uint8_t *b2, int len) {
     return 0;
 }
 
-static void _print(uint8_t *s, int len) {
-    int i = 0;
-    while (i < len) {
-        putchar(s[i++]);
-    }
-}
-
 static pngChunk_t _loadChunk(FILE *f, pngChunkIHDR_t IHDR) {
     pngChunk_t chunk = {0};
     
     fread(&chunk.header, sizeof(chunk.header), 1, f);
     chunk.header.length = _convert(chunk.header.length);
-    _print(chunk.header.type, 4);
-    putchar('\n');
     if (_strcmp(chunk.header.type, (uint8_t *)"IHDR", 4) == 0) {
         chunk.type = PNG_IHDR;
         chunk.data.IHDR = pngChunk_loadIHDR(f);
@@ -130,24 +121,31 @@ static png_t _loadPng(FILE *f) {
     return png;
 }
 
-void _pngFree(png_t png) {
+png_t png_loadFromPath(const char *fpath) {
+    png_t png;
+    
+    FILE *f = fopen(fpath, "rb");
+    png = _loadPng(f);
+    fclose(f);
+    return png;
+}
+
+pngChunk_t png_getChunk(png_t png, const char *chunk) {
+    pngChunk_t res = {0};
+    int i;
+    
+    for (i = 0; i < png.chunksLen; i++) {
+        if (_strcmp(png.chunks[i].header.type, (uint8_t *)chunk, 4) == 0) {
+            return png.chunks[i];
+        }
+    }
+    return res;
+}
+
+void png_free(png_t png) {
     int i;
     for (i = 0; i < png.chunksLen; i++) {
         pngChunk_free(png.chunks[i]);
     }
     free(png.chunks);
-}
-
-img_t png_loadFromPath(const char *fpath) {
-    img_t img;
-    png_t png;
-    
-    FILE *f = fopen(fpath, "rb");
-    png = _loadPng(f);
-    
-    img.type = IMG_PNG;
-
-    fclose(f);
-    _pngFree(png);
-    return img;
 }
