@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
     int i;
     char *fpath = NULL;
     char *output = NULL;
-    char sw;
+    char sw = ' ';
 
     if (argc < 3) {
         printf("json [-f|-h] file [-o output]\n");

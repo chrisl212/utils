@@ -8,7 +8,7 @@ static inline int _ceil(double d) {
 }
 
 static int *_gaps(int len, int *gaps_len) {
-    int idx, gap, *gaps = NULL;
+    int idx, gap = 0, *gaps = NULL;
 
     *gaps_len = 0;
     do {

@@ -1,12 +1,16 @@
 #ifndef PNG_H
 #define PNG_H
 
+#include <stdbool.h>
+#include "pngChunk.h"
+
 typedef struct {
-    pngHeader_t header;
+    bool valid;
     pngChunk_t *chunks;
+    uint32_t chunksLen;
 } png_t;
 
-typedef struct img_t img_t;
+typedef struct img img_t;
 
 img_t png_loadFromPath(const char *fpath);
 

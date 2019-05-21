@@ -10,7 +10,6 @@ int main(int argc, char **argv) {
     }
 
     img = img_loadFromPath(argv[1]);
-    printf("File is %svalid\n", (img.header.valid) ? "" : "not ");
 
     return 0;
 }

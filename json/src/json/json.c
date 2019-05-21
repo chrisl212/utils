@@ -125,7 +125,7 @@ static json_t _parse_item(FILE *fp) {
         item = _parse_array(fp);
     } else if (c == 't' || c == 'f') {
         item = _parse_bool(fp);
-    } else if (c == 'n') {
+    } else {
         item.type = JSON_NULL;
         while (isalpha(fgetc(fp)));
         fseek(fp, -1, SEEK_CUR);
@@ -322,9 +322,9 @@ static void _write(json_t json, FILE *fp, uint16_t indents) {
         }
         fputc('"', fp);
     } else if (json.type == JSON_INT) {
-        fprintf(fp, "%ld", json.value.ival);
+        fprintf(fp, "%lld", json.value.ival);
     } else if (json.type == JSON_UINT) {
-        fprintf(fp, "%lu", json.value.uival);
+        fprintf(fp, "%llu", json.value.uival);
     } else if (json.type == JSON_FLOAT) {
         if (json.value.fval < 1e-6 || json.value.fval > 1e6)
             fprintf(fp, "%le", json.value.fval);

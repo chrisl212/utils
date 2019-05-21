@@ -18,7 +18,7 @@ static void _strrev(char *s) {
 
 static char *_getExt(const char *path) {
     char *ext = NULL;
-    int sz = 1, i = strlen(path) - 1;
+    size_t sz = 1, i = strlen(path) - 1;
 
     while (i >= 0 && path[i] != '.') {
         ext = realloc(ext, sizeof(*ext) * ++sz);
@@ -30,7 +30,7 @@ static char *_getExt(const char *path) {
 }
 
 img_t img_loadFromPath(const char *fpath) {
-    img_t img; 
+    img_t img = {0}; 
     char *ext = _getExt(fpath);
 
     if (strcmp(ext, "png") == 0) {

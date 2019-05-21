@@ -12,19 +12,14 @@ typedef enum {
 } imgType_t;
 
 typedef struct {
-    bool valid;
-} imgHeader_t;
-
-typedef struct {
     uint16_t r;
     uint16_t g;
     uint16_t b;
     uint8_t a;
 } imgPixel_t;
 
-typedef struct img_t {
+typedef struct img {
     imgType_t type;
-    imgHeader_t header;
     imgPixel_t *bitmap;
 } img_t;
 
