@@ -278,6 +278,10 @@ void pngChunk_free(pngChunk_t chunk) {
                 free(chunk.data.iTXt.text);
             break;
             
+        case PNG_hIST:
+            free(chunk.data.hIST.histogram);
+            break;
+            
         default:
             break;
     }
