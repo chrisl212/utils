@@ -1,3 +1,11 @@
+//
+//  main.c
+//  utils
+//
+//  Created by Christopher Loonam on 5/20/19.
+//  Copyright © 2019 Christopher Loonam. All rights reserved.
+//
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>

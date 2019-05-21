@@ -1,3 +1,11 @@
+//
+//  png.h
+//  utils
+//
+//  Created by Christopher Loonam on 5/20/19.
+//  Copyright © 2019 Christopher Loonam. All rights reserved.
+//
+
 #ifndef PNG_H
 #define PNG_H
 

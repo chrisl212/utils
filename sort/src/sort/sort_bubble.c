@@ -1,3 +1,11 @@
+//
+//  sort_bubble.c
+//  utils
+//
+//  Created by Christopher Loonam on 5/20/19.
+//  Copyright © 2019 Christopher Loonam. All rights reserved.
+//
+
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>

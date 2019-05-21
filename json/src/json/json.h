@@ -1,3 +1,11 @@
+//
+//  json.h
+//  utils
+//
+//  Created by Christopher Loonam on 5/20/19.
+//  Copyright © 2019 Christopher Loonam. All rights reserved.
+//
+
 #ifndef JSON_H
 #define JSON_H
 

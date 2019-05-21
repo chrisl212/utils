@@ -23,6 +23,7 @@ static char *_decompress(char *s) {
 }
 
 static uint32_t _convert32(uint32_t num) {
+    //swap big endian to little endian for 32 bit number
     uint32_t ret = 0;
     ret |= (num & 0x000000FF) << 24;
     ret |= (num & 0x0000FF00) << 8;
@@ -32,6 +33,7 @@ static uint32_t _convert32(uint32_t num) {
 }
 
 static uint16_t _convert16(uint16_t num) {
+    //swap big endian to little endian for 32 bit number
     uint16_t ret = 0;
     ret |= (num & 0x00FF) << 8;
     ret |= (num & 0xFF00) >> 8;
