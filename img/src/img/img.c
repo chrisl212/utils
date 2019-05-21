@@ -67,14 +67,16 @@ img_t img_loadFromPath(const char *fpath) {
 
 void img_getDimensions(img_t img, uint32_t *width, uint32_t *height) {
     pngChunk_t IHDR;
+    gifBlock_t LSD;
     
     if (img.type == IMG_PNG) {
         IHDR = png_getChunk(img.data.png, "IHDR");
         *width = IHDR.data.IHDR.width;
         *height = IHDR.data.IHDR.height;
     } else if (img.type == IMG_GIF) {
-        *width = img.data.gif.logicalScreenDescriptor.width;
-        *height = img.data.gif.logicalScreenDescriptor.height;
+    	LSD = gif_getBlock(img.data.gif, BLK_LSD);
+        *width = LSD.data.LSD.width;
+        *height = LSD.data.LSD.height;
     }
 }
 
@@ -84,6 +86,10 @@ void img_free(img_t img) {
             png_free(img.data.png);
             break;
             
+        case IMG_GIF:
+        	gif_free(img.data.gif);
+        	break;
+
         default:
             break;
     }

@@ -14,11 +14,12 @@
 
 typedef struct {
     bool valid;
-    gifBlockHeader_t header;
-    gifBlockLogicalScreenDescriptor_t logicalScreenDescriptor;
+    gifBlock_t *blocks;
+    uint16_t len;
 } gif_t;
 
 gif_t gif_loadFromPath(const char *fpath);
-void gif_free(gif_t jpg);
+gifBlock_t gif_getBlock(gif_t gif, gifBlockType_t type);
+void gif_free(gif_t gif);
 
 #endif

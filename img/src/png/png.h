@@ -19,7 +19,7 @@ typedef struct png {
 } png_t;
 
 png_t png_loadFromPath(const char *fpath);
-pngChunk_t png_getChunk(png_t png, const char *chunk);
+pngChunk_t png_getChunk(png_t png, pngChunkType_t type);
 void png_free(png_t png);
 
 #endif

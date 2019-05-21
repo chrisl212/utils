@@ -131,13 +131,14 @@ png_t png_loadFromPath(const char *fpath) {
     return png;
 }
 
-pngChunk_t png_getChunk(png_t png, const char *chunk) {
+pngChunk_t png_getChunk(png_t png, pngChunkType_t type) {
     pngChunk_t res = {0};
     int i;
     
     for (i = 0; i < png.chunksLen; i++) {
-        if (_strcmp(png.chunks[i].header.type, (uint8_t *)chunk, 4) == 0) {
-            return png.chunks[i];
+        if (png.chunks[i].type == type) {
+            res = png.chunks[i];
+            break;
         }
     }
     return res;
