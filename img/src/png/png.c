@@ -67,26 +67,27 @@ static pngChunk_t _loadChunk(FILE *f, pngChunkIHDR_t IHDR) {
     } else if (_strcmp(chunk.header.type, (uint8_t *)"tEXt", 4) == 0) {
         chunk.type = PNG_tEXt;
         chunk.data.tEXt = pngChunk_loadtEXt(f, chunk.header.length);
-        printf("%s: %s\n", chunk.data.tEXt.keyword, chunk.data.tEXt.text);
     } else if (_strcmp(chunk.header.type, (uint8_t *)"zTXt", 4) == 0) {
         chunk.type = PNG_zTXt;
         chunk.data.zTXt = pngChunk_loadzTXt(f, chunk.header.length);
-        printf("%s: %s\n", chunk.data.zTXt.keyword, chunk.data.zTXt.text);
+    } else if (_strcmp(chunk.header.type, (uint8_t *)"iTXt", 4) == 0) {
+        chunk.type = PNG_iTXt;
+        chunk.data.iTXt = pngChunk_loadiTXt(f, chunk.header.length);
     } else if (_strcmp(chunk.header.type, (uint8_t *)"bKGD", 4) == 0) {
         chunk.type = PNG_bKGD;
         chunk.data.bKGD = pngChunk_loadbKGD(f, IHDR.colorType);
     } else if (_strcmp(chunk.header.type, (uint8_t *)"pHYs", 4) == 0) {
         chunk.type = PNG_pHYs;
         chunk.data.pHYs = pngChunk_loadpHYs(f);
+    } else if (_strcmp(chunk.header.type, (uint8_t *)"sBIT", 4) == 0) {
+        chunk.type = PNG_sBIT;
+        chunk.data.sBIT = pngChunk_loadsBIT(f, IHDR.colorType);
+    } else if (_strcmp(chunk.header.type, (uint8_t *)"hIST", 4) == 0) {
+        chunk.type = PNG_hIST;
+        chunk.data.hIST = pngChunk_loadhIST(f, chunk.header.length);
     } else if (_strcmp(chunk.header.type, (uint8_t *)"tIME", 4) == 0) {
         chunk.type = PNG_tIME;
         chunk.data.tIME = pngChunk_loadtIME(f);
-        printf("%d/%d/%d %d:%02d:%02d\n", chunk.data.tIME.month,
-                                      chunk.data.tIME.day,
-                                      chunk.data.tIME.year,
-                                      chunk.data.tIME.hour,
-                                      chunk.data.tIME.minute,
-                                      chunk.data.tIME.second);
     } else {
         fseek(f, chunk.header.length+4, SEEK_CUR);
     }

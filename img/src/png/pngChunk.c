@@ -124,7 +124,7 @@ pngChunkiCCP_t pngChunk_loadiCCP(FILE *f, uint32_t len) {
     fread(buf, sizeof(*buf), len, f);
     buf[len] = '\0';
     iCCP.name = buf;
-    iCCP.compression = buf[strlen(buf)+1];
+    iCCP.compressionMethod = buf[strlen(buf)+1];
     iCCP.profile = &buf[strlen(buf)+2];
     fread(&iCCP.crc, sizeof(iCCP.crc), 1, f);
     iCCP.profile = _decompress(iCCP.profile);
@@ -150,11 +150,30 @@ pngChunkzTXt_t pngChunk_loadzTXt(FILE *f, uint32_t len) {
     fread(buf, sizeof(*buf), len, f);
     buf[len] = '\0';
     zTXt.keyword = buf;
-    zTXt.compression = buf[strlen(buf)+1];
+    zTXt.compressionMethod = buf[strlen(buf)+1];
     zTXt.text = &buf[strlen(buf)+2];
     fread(&zTXt.crc, sizeof(zTXt.crc), 1, f);
     zTXt.text = _decompress(zTXt.text);
     return zTXt;
+}
+
+pngChunkiTXt_t pngChunk_loadiTXt(FILE *f, uint32_t len) {
+    pngChunkiTXt_t iTXt;
+    char *buf = malloc((len + 1) * sizeof(*buf));
+    
+    fread(buf, sizeof(*buf), len, f);
+    buf[len] = '\0';
+    iTXt.keyword = buf;
+    iTXt.compressionFlag = buf[strlen(buf)+1];
+    iTXt.compressionMethod = buf[strlen(buf)+2];
+    iTXt.languageTag = &buf[strlen(buf)+3];
+    iTXt.translatedKeyword = &buf[strlen(buf)+strlen(iTXt.languageTag)+4];
+    iTXt.text = &buf[strlen(buf)+strlen(iTXt.languageTag)+strlen(iTXt.translatedKeyword)+5];
+    if (iTXt.compressionFlag) {
+        iTXt.text = _decompress(iTXt.text);
+    }
+    fread(&iTXt.crc, sizeof(iTXt.crc), 1, f);
+    return iTXt;
 }
 
 pngChunkbKGD_t pngChunk_loadbKGD(FILE *f, uint8_t colorMode) {
@@ -182,6 +201,39 @@ pngChunkpHYs_t pngChunk_loadpHYs(FILE *f) {
     pHYs.x = _convert32(pHYs.x);
     pHYs.y = _convert32(pHYs.y);
     return pHYs;
+}
+
+pngChunksBIT_t pngChunk_loadsBIT(FILE *f, uint8_t colorMode) {
+    pngChunksBIT_t sBIT = {0};
+    
+    if (colorMode == 0) {
+        fread(&sBIT.grayscale, sizeof(sBIT.grayscale), 1, f);
+    } else if (colorMode == 2) {
+        fread(&sBIT.truecolor, sizeof(sBIT.truecolor), 1, f);
+    } else if (colorMode == 3) {
+        fread(&sBIT.indexed, sizeof(sBIT.indexed), 1, f);
+    } else if (colorMode == 4) {
+        fread(&sBIT.grayscalea, sizeof(sBIT.grayscalea), 1, f);
+    } else if (colorMode == 6) {
+        fread(&sBIT.truecolora, sizeof(sBIT.truecolora), 1, f);
+    }
+    fread(&sBIT.crc, sizeof(sBIT.crc), 1, f);
+    return sBIT;
+}
+
+pngChunkhIST_t pngChunk_loadhIST(FILE *f, uint32_t len) {
+    pngChunkhIST_t hIST;
+    int i;
+    
+    hIST.len = len/2;
+    hIST.histogram = malloc(sizeof(*hIST.histogram) * hIST.len);
+    fread(hIST.histogram, sizeof(*hIST.histogram), hIST.len, f);
+    for (i = 0; i < hIST.len; i++) {
+        hIST.histogram[i] = _convert16(hIST.histogram[i]);
+    }
+    
+    fread(&hIST.crc, sizeof(hIST.crc), 1, f);
+    return hIST;
 }
 
 pngChunktIME_t pngChunk_loadtIME(FILE *f) {
@@ -218,6 +270,12 @@ void pngChunk_free(pngChunk_t chunk) {
         case PNG_zTXt:
             free(chunk.data.zTXt.keyword);
             free(chunk.data.zTXt.text);
+            break;
+            
+        case PNG_iTXt:
+            free(chunk.data.iTXt.keyword);
+            if (chunk.data.iTXt.compressionFlag)
+                free(chunk.data.iTXt.text);
             break;
             
         default:

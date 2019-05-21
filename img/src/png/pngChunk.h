@@ -9,7 +9,7 @@ typedef struct {
     uint8_t b;
 } __attribute__((packed)) pngChunkPixel_t;
 
-//TODO: sBIT, sPLT, hIST
+//TODO: sPLT
 
 typedef enum {
     PNG_INVALID,
@@ -24,8 +24,11 @@ typedef enum {
     PNG_iCCP,
     PNG_tEXt,
     PNG_zTXt,
+    PNG_iTXt,
     PNG_bKGD,
     PNG_pHYs,
+    PNG_sBIT,
+    PNG_hIST,
     PNG_tIME
 } pngChunkType_t;
 
@@ -94,7 +97,7 @@ typedef struct {
 
 typedef struct {
     char *name;
-    uint8_t compression;
+    uint8_t compressionMethod;
     char *profile;
     uint8_t crc[4];
 } __attribute__((packed)) pngChunkiCCP_t;
@@ -107,10 +110,20 @@ typedef struct {
 
 typedef struct {
     char *keyword;
-    uint8_t compression;
+    uint8_t compressionMethod;
     char *text;
     uint8_t crc[4];
 } __attribute__((packed)) pngChunkzTXt_t;
+
+typedef struct {
+    char *keyword;
+    uint8_t compressionFlag;
+    uint8_t compressionMethod;
+    char *languageTag;
+    char *translatedKeyword;
+    char *text;
+    uint8_t crc[4];
+} __attribute__((packed)) pngChunkiTXt_t;
 
 typedef struct {
     uint8_t indexedBackground;
@@ -125,6 +138,21 @@ typedef struct {
     uint8_t unit;
     uint8_t crc[4];
 } __attribute__((packed)) pngChunkpHYs_t;
+
+typedef struct {
+    uint8_t grayscale;
+    uint8_t truecolor[3];
+    uint8_t indexed[3];
+    uint8_t grayscalea[2];
+    uint8_t truecolora[4];
+    uint8_t crc[4];
+} __attribute__((packed)) pngChunksBIT_t;
+
+typedef struct {
+    uint16_t *histogram;
+    uint32_t len;
+    uint8_t crc[4];
+} __attribute__((packed)) pngChunkhIST_t;
 
 typedef struct {
     uint16_t year;
@@ -150,8 +178,11 @@ typedef union {
     pngChunkiCCP_t iCCP;
     pngChunktEXt_t tEXt;
     pngChunkzTXt_t zTXt;
+    pngChunkiTXt_t iTXt;
     pngChunkbKGD_t bKGD;
     pngChunkpHYs_t pHYs;
+    pngChunksBIT_t sBIT;
+    pngChunkhIST_t hIST;
     pngChunktIME_t tIME;
 } pngChunkData_t;
 
@@ -175,8 +206,11 @@ pngChunksRGB_t pngChunk_loadsRGB(FILE *f);
 pngChunkiCCP_t pngChunk_loadiCCP(FILE *f, uint32_t len);
 pngChunktEXt_t pngChunk_loadtEXt(FILE *f, uint32_t len);
 pngChunkzTXt_t pngChunk_loadzTXt(FILE *f, uint32_t len);
+pngChunkiTXt_t pngChunk_loadiTXt(FILE *f, uint32_t len);
 pngChunkbKGD_t pngChunk_loadbKGD(FILE *f, uint8_t colorMode);
 pngChunkpHYs_t pngChunk_loadpHYs(FILE *f);
+pngChunksBIT_t pngChunk_loadsBIT(FILE *f, uint8_t colorMode);
+pngChunkhIST_t pngChunk_loadhIST(FILE *f, uint32_t len);
 pngChunktIME_t pngChunk_loadtIME(FILE *f);
 
 void pngChunk_free(pngChunk_t chunk);
