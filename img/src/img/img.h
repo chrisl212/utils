@@ -16,6 +16,7 @@
 #include "../png/png.h"
 #include "../jpg/jpg.h"
 #include "../gif/gif.h"
+#include "../bmp/bmp.h"
 
 typedef enum {
     IMG_INVALID,
@@ -28,6 +29,7 @@ typedef enum {
 typedef union {
     png_t png;
     jpg_t jpg;
+    bmp_t bmp;
     gif_t gif;
 } imgData_t;
 

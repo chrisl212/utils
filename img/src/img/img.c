@@ -53,6 +53,12 @@ img_t img_loadFromPath(const char *fpath) {
         if (img.data.jpg.valid == false) {
             img.type = IMG_INVALID;
         }
+    } else if (strcmp(ext, "bmp") == 0) {
+        img.type = IMG_BMP;
+        img.data.bmp = bmp_loadFromPath(fpath);
+        if (img.data.bmp.valid == false) {
+            img.type = IMG_INVALID;
+        }
     } else if (strcmp(ext, "gif") == 0) {
         img.type = IMG_GIF;
         img.data.gif = gif_loadFromPath(fpath);
@@ -70,13 +76,16 @@ void img_getDimensions(img_t img, uint32_t *width, uint32_t *height) {
     gifBlock_t LSD;
     
     if (img.type == IMG_PNG) {
-        IHDR = png_getChunk(img.data.png, "IHDR");
+        IHDR = png_getChunk(img.data.png, PNG_IHDR);
         *width = IHDR.data.IHDR.width;
         *height = IHDR.data.IHDR.height;
     } else if (img.type == IMG_GIF) {
     	LSD = gif_getBlock(img.data.gif, BLK_LSD);
         *width = LSD.data.LSD.width;
         *height = LSD.data.LSD.height;
+    } else if (img.type == IMG_BMP) {
+        *width = img.data.bmp.header.width;
+        *height = img.data.bmp.header.height;
     }
 }
 
@@ -89,6 +98,10 @@ void img_free(img_t img) {
         case IMG_GIF:
         	gif_free(img.data.gif);
         	break;
+            
+        case IMG_BMP:
+            bmp_free(img.data.bmp);
+            break;
 
         default:
             break;

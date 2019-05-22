@@ -41,6 +41,10 @@ gif_t gif_loadFromPath(const char *fpath) {
     FILE *f = fopen(fpath, "r");
     uint8_t intro, ext;
     
+    if (!f) {
+        return gif;
+    }
+    
     fread(&blk.data.HDR, sizeof(blk.data.HDR), 1, f);
     if (_strcmp(blk.data.HDR.signature, (uint8_t *)"GIF", 3) != 0 || (_strcmp(blk.data.HDR.version, (uint8_t *)"87a", 3) != 0 && _strcmp(blk.data.HDR.version, (uint8_t *)"89a", 3) !=0)) {
         return gif;
