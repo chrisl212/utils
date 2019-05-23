@@ -17,15 +17,26 @@ typedef struct {
     double **vals;
 } mat_t;
 
-mat_t mat_create(uint64_t rows, uint64_t cols, double **vals);
+#include "vec.h"
+
+//Creating
+mat_t mat_create(uint64_t rows, uint64_t cols, ...);
 mat_t mat_columnFromStrings(char **vals);
 mat_t mat_rowFromStrings(char **vals);
-mat_t mat_mult(mat_t matrix1, mat_t matrix2);
-mat_t mat_add(mat_t matrix1, mat_t matrix2);
-mat_t mat_sub(mat_t matrix1, mat_t matrix2);
+
+//Arithmetic
+mat_t mat_mult(uint64_t num, ...);
+mat_t mat_add(uint64_t num, ...);
+mat_t mat_sub(uint64_t num, ...);
 mat_t mat_scale(mat_t matrix, double scale);
 mat_t mat_transpose(mat_t matrix);
 mat_t mat_inverse(mat_t matrix);
+mat_t mat_identity(uint64_t dim);
+
+//Transformations
+mat_t mat_rotation(vec_t angles);
+mat_t mat_translation(vec_t delta);
+
 void mat_print(mat_t matrix);
 void mat_free(mat_t matrix);
 
